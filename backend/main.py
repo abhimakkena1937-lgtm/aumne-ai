@@ -1,22 +1,18 @@
 import json
-from fastapi.middleware.cors import CORSMiddleware
+
 from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
 from backend.models import Post
 from backend.schemas import PostCreate, PostResponse, PostStatus
 from backend.moderation import moderate_content
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.cors import CORSMiddleware
 
-# ---------------------------------------------------------
+
+# =========================================================
 # FASTAPI APPLICATION
-# ---------------------------------------------------------
-
-
-
-
+# =========================================================
 
 app = FastAPI(
     title="Aumne AI",
@@ -25,11 +21,16 @@ app = FastAPI(
 )
 
 
+# =========================================================
+# CORS CONFIGURATION
+# =========================================================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://frontend-app-rqal.onrender.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -37,41 +38,9 @@ app.add_middleware(
 )
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://aumne-ai-frontend.onrender.com",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-# ---------------------------------------------------------
+# =========================================================
 # HELPER FUNCTION: SERIALIZE POST
-# ---------------------------------------------------------
+# =========================================================
 
 def serialize_post(post: Post) -> dict:
     """
@@ -93,9 +62,9 @@ def serialize_post(post: Post) -> dict:
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # ROOT ENDPOINT
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get("/")
 def root():
@@ -110,9 +79,9 @@ def root():
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # 1. CREATE A NEW DRAFT POST
-# ---------------------------------------------------------
+# =========================================================
 
 @app.post(
     "/posts/",
@@ -154,9 +123,9 @@ def create_post(
         raise
 
 
-# ---------------------------------------------------------
+# =========================================================
 # 2. SUBMIT A POST FOR MODERATION
-# ---------------------------------------------------------
+# =========================================================
 
 @app.post(
     "/posts/{post_id}/submit/",
@@ -220,9 +189,9 @@ def submit_post(
         raise
 
 
-# ---------------------------------------------------------
+# =========================================================
 # 3. LIST POSTS WITH OPTIONAL STATUS FILTER
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get(
     "/posts/",
@@ -240,7 +209,7 @@ def list_posts(
     db: Session = Depends(get_db),
 ):
     """
-    Retrieve all posts or filter by status.
+    Retrieve all posts or filter posts by status.
     """
 
     query = db.query(Post)
@@ -262,9 +231,9 @@ def list_posts(
     ]
 
 
-# ---------------------------------------------------------
+# =========================================================
 # 4. PUBLISH AN APPROVED POST
-# ---------------------------------------------------------
+# =========================================================
 
 @app.patch(
     "/posts/{post_id}/publish/",
@@ -312,9 +281,9 @@ def publish_post(
         raise
 
 
-# ---------------------------------------------------------
+# =========================================================
 # 5. RETRIEVE A SPECIFIC POST
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get(
     "/posts/{post_id}",
